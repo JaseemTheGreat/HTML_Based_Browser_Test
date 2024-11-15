@@ -4,8 +4,8 @@
   <title>HTML Browser</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-    .tabs { overflow: hidden; background-color: #333; }
-    .tabs button { background-color: inherit; border: none; color: white; padding: 14px 16px; cursor: pointer; transition: 0.3s; position: relative; display: flex; align-items: center; }
+    .tabs { display: flex; background-color: #333; }
+    .tabs button { background-color: inherit; border: none; color: white; padding: 14px 16px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; }
     .tabs button:hover { background-color: #575757; }
     .tabs button.active { background-color: #575757; }
     .tabs button .close-btn { margin-left: 8px; color: red; cursor: pointer; }
@@ -94,7 +94,7 @@
   }
 
   function addTab(url) {
-    var tabLink = url || 'about:blank';
+    var tabLink = url || 'https://www.example.com'; // Default URL
 
     var tabsContainer = document.getElementById('tabs');
     var newTabId = 'Tab' + (++tabCounter);
