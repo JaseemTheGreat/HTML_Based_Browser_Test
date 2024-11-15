@@ -44,13 +44,14 @@
 <div class="tabs" id="tabs">
   <button class="tablink active" onclick="openTab(event, 'Start')">Start</button>
   <button class="tablink" onclick="openTab(event, 'Settings')">Settings</button>
+  <button class="tablink" onclick="addNewTab()">+</button>
 </div>
 
 <div id="Start" class="tabcontent active">
   <h1>Welcome to HTML Browser</h1>
   <p>Enter a URL to open a new tab or click on one of the favorite sites below.</p>
   <input type="text" id="newTabLink" placeholder="Enter URL" />
-  <button onclick="addTab()">Add Tab</button>
+  <button onclick="changeStartTab()">Go</button>
   
   <div class="favorites">
     <h2>Favorite Sites</h2>
@@ -92,45 +93,51 @@
     evt.currentTarget.className += " active";
   }
 
-  function addTab() {
+  function addTab(url) {
+    var tabLink = url || 'about:blank';
+
+    var tabsContainer = document.getElementById('tabs');
+    var newTabId = 'Tab' + (++tabCounter);
+    var tabName = 'Tab ' + tabCounter;
+
+    // Create a temporary iframe to get the title and favicon
+    var tempIframe = document.createElement('iframe');
+    tempIframe.style.display = 'none';
+    tempIframe.src = tabLink;
+    tempIframe.onload = function() {
+      var title = tempIframe.contentDocument.title || tabName;
+      var iconLink = tempIframe.contentDocument.querySelector("link[rel*='icon']") || {};
+      var favicon = iconLink.href || '';
+
+      // Add new tab button with favicon and title
+      var newTabButton = document.createElement('button');
+      newTabButton.className = 'tablink';
+      newTabButton.innerHTML = `<img src="${favicon}" alt="${title}"> ${title}<span class="close-btn" onclick="deleteTab(event, '${newTabId}')">&times;</span>`;
+      newTabButton.setAttribute('onclick', `openTab(event, '${newTabId}')`);
+      tabsContainer.appendChild(newTabButton);
+
+      // Add new tab content
+      var newTabContent = document.createElement('div');
+      newTabContent.id = newTabId;
+      newTabContent.className = 'tabcontent';
+      newTabContent.innerHTML = `<iframe src="${tabLink}"></iframe>`;
+      document.body.appendChild(newTabContent);
+
+      // Remove temporary iframe
+      document.body.removeChild(tempIframe);
+
+      // Automatically activate the new tab
+      openTab({ currentTarget: newTabButton }, newTabId);
+    };
+    document.body.appendChild(tempIframe);
+  }
+
+  function changeStartTab() {
     var tabLink = document.getElementById('newTabLink').value;
 
     if (tabLink) {
-      var tabsContainer = document.getElementById('tabs');
-      var newTabId = 'Tab' + (++tabCounter);
-      var tabName = 'Tab ' + tabCounter;
-
-      // Create a temporary iframe to get the title and favicon
-      var tempIframe = document.createElement('iframe');
-      tempIframe.style.display = 'none';
-      tempIframe.src = tabLink;
-      tempIframe.onload = function() {
-        var title = tempIframe.contentDocument.title || tabName;
-        var iconLink = tempIframe.contentDocument.querySelector("link[rel*='icon']") || {};
-        var favicon = iconLink.href || '';
-
-        // Add new tab button with favicon and title
-        var newTabButton = document.createElement('button');
-        newTabButton.className = 'tablink';
-        newTabButton.innerHTML = `<img src="${favicon}" alt="${title}"> ${title}<span class="close-btn" onclick="deleteTab(event, '${newTabId}')">&times;</span>`;
-        newTabButton.setAttribute('onclick', `openTab(event, '${newTabId}')`);
-        tabsContainer.appendChild(newTabButton);
-
-        // Add new tab content
-        var newTabContent = document.createElement('div');
-        newTabContent.id = newTabId;
-        newTabContent.className = 'tabcontent';
-        newTabContent.innerHTML = `<iframe src="${tabLink}"></iframe>`;
-        document.body.appendChild(newTabContent);
-
-        // Clear input field and remove temporary iframe
-        document.getElementById('newTabLink').value = '';
-        document.body.removeChild(tempIframe);
-
-        // Automatically activate the new tab
-        openTab({ currentTarget: newTabButton }, newTabId);
-      };
-      document.body.appendChild(tempIframe);
+      var startTabContent = document.getElementById('Start');
+      startTabContent.innerHTML = `<iframe src="${tabLink}"></iframe>`;
     } else {
       alert('Please enter a URL.');
     }
@@ -158,6 +165,10 @@
 
   function openFavorite(url) {
     document.getElementById('newTabLink').value = url;
+    changeStartTab();
+  }
+
+  function addNewTab() {
     addTab();
   }
 
