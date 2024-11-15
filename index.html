@@ -14,23 +14,33 @@
 </head>
 <body>
 
-<div class="tabs">
-  <button class="tablink" onclick="openTab(event, 'Tab1')">Tab 1</button>
+<div class="tabs" id="tabs">
+  <button class="tablink active" onclick="openTab(event, 'Tab1')">Tab 1</button>
   <button class="tablink" onclick="openTab(event, 'Tab2')">Tab 2</button>
   <button class="tablink" onclick="openTab(event, 'Tab3')">Tab 3</button>
 </div>
 
-<div id="Tab1" class="tabcontent">
-  <iframe src="https://example.com"></iframe>
+<div id="Tab1" class="tabcontent" style="display: block;">
+  <iframe id="iframe1" src="https://example.com"></iframe>
+  <input type="text" id="link1" placeholder="Enter URL" />
+  <button onclick="changeLink('Tab1')">Change Link</button>
 </div>
 
 <div id="Tab2" class="tabcontent">
-  <iframe src="https://example.org"></iframe>
+  <iframe id="iframe2" src="https://example.org"></iframe>
+  <input type="text" id="link2" placeholder="Enter URL" />
+  <button onclick="changeLink('Tab2')">Change Link</button>
 </div>
 
 <div id="Tab3" class="tabcontent">
-  <iframe src="https://example.net"></iframe>
+  <iframe id="iframe3" src="https://example.net"></iframe>
+  <input type="text" id="link3" placeholder="Enter URL" />
+  <button onclick="changeLink('Tab3')">Change Link</button>
 </div>
+
+<input type="text" id="newTabName" placeholder="New Tab Name" />
+<input type="text" id="newTabLink" placeholder="New Tab URL" />
+<button onclick="addTab()">Add Tab</button>
 
 <script>
   function openTab(evt, tabName) {
@@ -47,8 +57,35 @@
     evt.currentTarget.className += " active";
   }
 
-  // Open the first tab by default
-  document.getElementsByClassName("tablink")[0].click();
+  function changeLink(tabId) {
+    var iframe = document.getElementById('iframe' + tabId.slice(-1));
+    var linkInput = document.getElementById('link' + tabId.slice(-1)).value;
+    iframe.src = linkInput;
+  }
+
+  function addTab() {
+    var tabName = document.getElementById('newTabName').value;
+    var tabLink = document.getElementById('newTabLink').value;
+    var tabsContainer = document.getElementById('tabs');
+    var newTabId = 'Tab' + (tabsContainer.getElementsByClassName('tablink').length + 1);
+
+    var newTabButton = document.createElement('button');
+    newTabButton.className = 'tablink';
+    newTabButton.textContent = tabName;
+    newTabButton.setAttribute('onclick', `openTab(event, '${newTabId}')`);
+    tabsContainer.appendChild(newTabButton);
+
+    var newTabContent = document.createElement('div');
+    newTabContent.id = newTabId;
+    newTabContent.className = 'tabcontent';
+    newTabContent.innerHTML = `<iframe id="iframe${newTabId.slice(-1)}" src="${tabLink}"></iframe>
+                               <input type="text" id="link${newTabId.slice(-1)}" placeholder="Enter URL" />
+                               <button onclick="changeLink('${newTabId}')">Change Link</button>`;
+    document.body.insertBefore(newTabContent, document.getElementById('newTabName').parentNode);
+
+    document.getElementById('newTabName').value = '';
+    document.getElementById('newTabLink').value = '';
+  }
 </script>
 
 </body>
