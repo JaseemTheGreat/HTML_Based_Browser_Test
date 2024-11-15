@@ -56,4 +56,35 @@
       newTabButton.className = 'tablink';
       newTabButton.textContent = tabName;
       newTabButton.setAttribute('onclick', `openTab(event, '${newTabId}')`);
-      newTabButton.innerHTML += `<span class="close-btn" onclick
+      newTabButton.innerHTML += `<span class="close-btn" onclick="deleteTab(event, '${newTabId}')">&times;</span>`;
+      tabsContainer.appendChild(newTabButton);
+
+      // Add new tab content
+      var newTabContent = document.createElement('div');
+      newTabContent.id = newTabId;
+      newTabContent.className = 'tabcontent';
+      newTabContent.innerHTML = `<iframe src="${tabLink}"></iframe>`;
+      document.body.appendChild(newTabContent);
+
+      // Clear input field
+      document.getElementById('newTabLink').value = '';
+    } else {
+      alert('Please enter a URL.');
+    }
+  }
+
+  function deleteTab(evt, tabId) {
+    evt.stopPropagation(); // Prevent the tab from opening when clicking the close button
+    var tabButton = evt.currentTarget.parentNode;
+    var tabContent = document.getElementById(tabId);
+
+    tabButton.parentNode.removeChild(tabButton);
+    tabContent.parentNode.removeChild(tabContent);
+
+    // Optionally, switch to another tab or the start page
+    openTab(event, 'Start');
+  }
+</script>
+
+</body>
+</html>
