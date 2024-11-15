@@ -3,14 +3,38 @@
 <head>
   <title>HTML Browser</title>
   <style>
-    body { font-family: Arial, sans-serif; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
     .tabs { overflow: hidden; background-color: #333; }
     .tabs button { background-color: inherit; border: none; color: white; padding: 14px 16px; cursor: pointer; transition: 0.3s; position: relative; }
     .tabs button:hover { background-color: #575757; }
     .tabs button.active { background-color: #575757; }
     .tabs button .close-btn { position: absolute; right: 5px; top: 5px; color: red; cursor: pointer; }
-    .tabcontent { display: none; padding: 10px; border-top: none; }
+    .tabcontent { display: none; padding: 20px; border-top: none; }
     .tabcontent iframe { width: 100%; height: 80vh; border: none; }
+    #Start { text-align: center; padding-top: 50px; }
+    #Start h1 { font-size: 2em; margin-bottom: 20px; }
+    #Start p { font-size: 1.2em; margin-bottom: 20px; }
+    #Start .favorites { margin-top: 20px; }
+    #Start .favorites a { display: block; margin: 10px 0; font-size: 1em; color: #333; }
+    #Start .favorites a:hover { text-decoration: underline; }
+    /* Light Mode */
+    @media (prefers-color-scheme: light) {
+      body { background-color: #fff; color: #000; }
+      .tabs { background-color: #ddd; }
+      .tabs button { color: black; }
+      .tabs button:hover, .tabs button.active { background-color: #bbb; }
+      .tabcontent iframe { background-color: #f9f9f9; }
+      #Start .favorites a { color: #000; }
+    }
+    /* Dark Mode */
+    @media (prefers-color-scheme: dark) {
+      body { background-color: #121212; color: #fff; }
+      .tabs { background-color: #333; }
+      .tabs button { color: white; }
+      .tabs button:hover, .tabs button.active { background-color: #575757; }
+      .tabcontent iframe { background-color: #1e1e1e; }
+      #Start .favorites a { color: #fff; }
+    }
   </style>
 </head>
 <body>
@@ -21,9 +45,17 @@
 
 <div id="Start" class="tabcontent" style="display: block;">
   <h1>Welcome to HTML Browser</h1>
-  <p>Enter a URL to open a new tab.</p>
+  <p>Enter a URL to open a new tab or click on one of the favorite sites below.</p>
   <input type="text" id="newTabLink" placeholder="Enter URL" />
   <button onclick="addTab()">Add Tab</button>
+  
+  <div class="favorites">
+    <h2>Favorite Sites</h2>
+    <a href="#" onclick="openFavorite('https://www.google.com')">Google</a>
+    <a href="#" onclick="openFavorite('https://www.youtube.com')">YouTube</a>
+    <a href="#" onclick="openFavorite('https://www.wikipedia.org')">Wikipedia</a>
+    <a href="#" onclick="openFavorite('https://www.github.com')">GitHub</a>
+  </div>
 </div>
 
 <script>
@@ -91,6 +123,11 @@
     } else {
       openTab(event, 'Start');
     }
+  }
+
+  function openFavorite(url) {
+    document.getElementById('newTabLink').value = url;
+    addTab();
   }
 </script>
 
