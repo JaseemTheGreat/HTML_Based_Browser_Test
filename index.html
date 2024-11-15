@@ -5,10 +5,11 @@
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
     .tabs { overflow: hidden; background-color: #333; }
-    .tabs button { background-color: inherit; border: none; color: white; padding: 14px 16px; cursor: pointer; transition: 0.3s; position: relative; }
+    .tabs button { background-color: inherit; border: none; color: white; padding: 14px 16px; cursor: pointer; transition: 0.3s; position: relative; display: flex; align-items: center; }
     .tabs button:hover { background-color: #575757; }
     .tabs button.active { background-color: #575757; }
-    .tabs button .close-btn { position: absolute; right: 5px; top: 5px; color: red; cursor: pointer; }
+    .tabs button .close-btn { margin-left: 8px; color: red; cursor: pointer; }
+    .tabs button img { margin-right: 8px; width: 16px; height: 16px; }
     .tabcontent { display: none; padding: 20px; border-top: none; opacity: 0; transform: translateY(-20px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
     .tabcontent.active { display: block; opacity: 1; transform: translateY(0); }
     .tabcontent iframe { width: 100%; height: 80vh; border: none; }
@@ -42,6 +43,7 @@
 
 <div class="tabs" id="tabs">
   <button class="tablink active" onclick="openTab(event, 'Start')">Start</button>
+  <button class="tablink" onclick="openTab(event, 'Settings')">Settings</button>
 </div>
 
 <div id="Start" class="tabcontent active">
@@ -59,8 +61,22 @@
   </div>
 </div>
 
+<div id="Settings" class="tabcontent">
+  <h1>Settings</h1>
+  <div class="setting-option">
+    <label for="darkModeToggle">Dark Mode:</label>
+    <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
+  </div>
+  <div class="setting-option">
+    <label for="homePageInput">Home Page URL:</label>
+    <input type="text" id="homePageInput" placeholder="Enter Home Page URL" />
+    <button onclick="setHomePage()">Set Home Page</button>
+  </div>
+</div>
+
 <script>
   let tabCounter = 1;
+  let homePage = 'Start';
 
   function openTab(evt, tabName) {
     var i, tabcontent, tablinks;
@@ -84,26 +100,37 @@
       var newTabId = 'Tab' + (++tabCounter);
       var tabName = 'Tab ' + tabCounter;
 
-      // Add new tab button
-      var newTabButton = document.createElement('button');
-      newTabButton.className = 'tablink';
-      newTabButton.textContent = tabName;
-      newTabButton.setAttribute('onclick', `openTab(event, '${newTabId}')`);
-      newTabButton.innerHTML += `<span class="close-btn" onclick="deleteTab(event, '${newTabId}')">&times;</span>`;
-      tabsContainer.appendChild(newTabButton);
+      // Create a temporary iframe to get the title and favicon
+      var tempIframe = document.createElement('iframe');
+      tempIframe.style.display = 'none';
+      tempIframe.src = tabLink;
+      tempIframe.onload = function() {
+        var title = tempIframe.contentDocument.title || tabName;
+        var iconLink = tempIframe.contentDocument.querySelector("link[rel*='icon']") || {};
+        var favicon = iconLink.href || '';
 
-      // Add new tab content
-      var newTabContent = document.createElement('div');
-      newTabContent.id = newTabId;
-      newTabContent.className = 'tabcontent';
-      newTabContent.innerHTML = `<iframe src="${tabLink}"></iframe>`;
-      document.body.appendChild(newTabContent);
+        // Add new tab button with favicon and title
+        var newTabButton = document.createElement('button');
+        newTabButton.className = 'tablink';
+        newTabButton.innerHTML = `<img src="${favicon}" alt="${title}"> ${title}<span class="close-btn" onclick="deleteTab(event, '${newTabId}')">&times;</span>`;
+        newTabButton.setAttribute('onclick', `openTab(event, '${newTabId}')`);
+        tabsContainer.appendChild(newTabButton);
 
-      // Clear input field
-      document.getElementById('newTabLink').value = '';
-      
-      // Automatically activate the new tab
-      openTab({ currentTarget: newTabButton }, newTabId);
+        // Add new tab content
+        var newTabContent = document.createElement('div');
+        newTabContent.id = newTabId;
+        newTabContent.className = 'tabcontent';
+        newTabContent.innerHTML = `<iframe src="${tabLink}"></iframe>`;
+        document.body.appendChild(newTabContent);
+
+        // Clear input field and remove temporary iframe
+        document.getElementById('newTabLink').value = '';
+        document.body.removeChild(tempIframe);
+
+        // Automatically activate the new tab
+        openTab({ currentTarget: newTabButton }, newTabId);
+      };
+      document.body.appendChild(tempIframe);
     } else {
       alert('Please enter a URL.');
     }
@@ -125,13 +152,26 @@
     if (tabs.length > 0) {
       openTab({ currentTarget: tabs[tabs.length - 1] }, tabs[tabs.length - 1].textContent.trim());
     } else {
-      openTab(event, 'Start');
+      openTab(event, homePage);
     }
   }
 
   function openFavorite(url) {
     document.getElementById('newTabLink').value = url;
     addTab();
+  }
+
+  function toggleDarkMode() {
+    if (document.getElementById('darkModeToggle').checked) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  }
+
+  function setHomePage() {
+    homePage = document.getElementById('homePageInput').value || 'Start';
+    alert('Home page set to: ' + homePage);
   }
 </script>
 
